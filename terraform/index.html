@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Card — DevOps Bootcamp 2026</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: #0f172a;
+    }
+
+    .card {
+      width: 360px;
+      padding: 2rem;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      text-align: center;
+      opacity: 0;
+      animation: fade-in 1s ease forwards;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    .name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .meta { color: #64748b; line-height: 1.8; }
+    .role {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.4rem 1rem;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    @keyframes fade-in {
+      to { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">DevOps Bootcamp 2026</span>
+    <h1 class="name">M Husaini</h1>
+    <p class="meta">Cohort: Cohort 4</p>
+    <p class="meta">Role: DevOps Engineer</p>
+    <span class="role">Student Card</span>
+  </div>
+</body>
+</html>
