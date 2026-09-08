@@ -6,8 +6,14 @@ module "devops_vpc" {
   cidr = "10.0.0.0/24"
   azs  = ["ap-southeast-1a"]
 
-  devops-public-subnets  = ["10.0.0.0/25"]
-  devops-private-subnets = ["10.0.0.128/25"]
+  public_subnets  = ["10.0.0.0/25"]
+  public_subnet_tags = {
+    Name = "devops-public-subnet"
+  }
+  private_subnets = ["10.0.0.128/25"]
+  private_subnet_tags = {
+    Name = "devops-private-subnet"
+  }
 
   map_public_ip_on_launch = true
   enable_nat_gateway      = true
