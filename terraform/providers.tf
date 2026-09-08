@@ -8,7 +8,7 @@ terraform {
   }
   backend "s3" {
     bucket       = "bootcamp-2026-mhusaini"
-    key          = "devops-project/terraform.tfstate"
+    key          = "terraform4/terraform.tfstate"
     region       = "ap-southeast-1"
     use_lockfile = true
   }
