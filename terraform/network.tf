@@ -1,12 +1,15 @@
-module "my_vpc" {
+module "devops_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.0"
 
-  name = "tf4-vpc"
-  cidr = "10.30.0.0/16"
+  name = "devops-vpc"
+  cidr = "10.0.0.0/24"
   azs  = ["ap-southeast-1a"]
 
-  public_subnets = ["10.30.1.0/24"]
+  devops-public-subnets  = ["10.0.0.0/25"]
+  devops-private-subnets = ["10.0.0.128/25"]
 
   map_public_ip_on_launch = true
+  enable_nat_gateway      = true
+  single_nat_gateway      = true
 }
