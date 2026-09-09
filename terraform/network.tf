@@ -6,7 +6,7 @@ module "devops_vpc" {
   cidr = "10.0.0.0/24"
   azs  = ["ap-southeast-1a"]
 
-  public_subnets  = ["10.0.0.0/25"]
+  public_subnets = ["10.0.0.0/25"]
   public_subnet_tags = {
     Name = "devops-public-subnet"
   }
