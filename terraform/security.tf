@@ -14,7 +14,7 @@ module "devops_public_sg" {
       to_port     = 80
     }
     prometheus = {
-      cidr_ipv4   = "monitoring"
+      cidr_ipv4   = "10.0.0.136/32"
       ip_protocol = "tcp"
       from_port   = 9190
       to_port     = 9190
