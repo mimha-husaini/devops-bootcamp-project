@@ -1,11 +1,15 @@
-output "rackula_url" {
-  value = "http://${module.my_server.public_ip}:8080"
+output "server_ip_public" {
+  value = module.my_server_public.public_ip
 }
 
-output "ssm_connect_command" {
-  value = "aws ssm start-session --target ${module.my_server.id} --region ap-southeast-1"
+output "ssm_command_public" {
+  value = "aws ssm start-session --target ${module.my_server_public.id}"
 }
 
-output "instance_id" {
-  value = module.my_server.id
+output "server_ip_private" {
+  value = module.my_server_private.private_ip
+}
+
+output "ssm_command_private" {
+  value = "aws ssm start-session --target ${module.my_server_private.id}"
 }
