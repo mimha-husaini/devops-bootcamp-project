@@ -13,14 +13,20 @@ module "devops_public_sg" {
       from_port   = 80
       to_port     = 80
     }
+    https = {
+      cidr_ipv4   = "0.0.0.0/0"
+      ip_protocol = "tcp"
+      from_port   = 443
+      to_port     = 443
+    }
     prometheus = {
       cidr_ipv4   = "10.0.0.136/32"
       ip_protocol = "tcp"
-      from_port   = 9190
-      to_port     = 9190
+      from_port   = 9100
+      to_port     = 9100
     }
     ssh = {
-      cidr_ipv4   = "10.0.0.128/25"
+      cidr_ipv4   = "10.0.0.128/25" #subnet vpc private
       ip_protocol = "tcp"
       from_port   = 22
       to_port     = 22
