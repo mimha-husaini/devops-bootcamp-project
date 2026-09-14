@@ -11,9 +11,13 @@ data "aws_ami" "ubuntu" {
 data "aws_iam_instance_profile" "my_ssm_profile" {
   name = "EC2-SSM-Role"
 }
+resource "aws_iam_role_policy_attachment" "ecr_readonly" {
+  role       = data.aws_iam_instance_profile.my_ssm_profile.role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
 
 data "aws_ssm_parameter" "token" {
-  name = "/devops-bootcamp-2026/tunnel-token"
+  name = "/devops-bootcamp-project/tunnel-token"
 }
 module "my_server_public" {
   source  = "terraform-aws-modules/ec2-instance/aws"
@@ -25,17 +29,17 @@ module "my_server_public" {
   subnet_id              = module.devops_vpc.public_subnets[0]
   private_ip             = "10.0.0.5"
   create_security_group  = false
-  vpc_security_group_ids = module.devops_public_sg.id
+  vpc_security_group_ids = [module.devops_public_sg.id]
   iam_instance_profile   = data.aws_iam_instance_profile.my_ssm_profile.name
-
+  key_name            = "mimha-key"
   user_data = templatefile("userdata.sh", {})
   # tags      = { Name = "tf-server-public" }
 }
 
 module "my_server_private" {
   for_each = {
-    controller = "10.0.0.135"
-    monitoring = "10.0.0.136"
+    controller = {ip = "10.0.0.135", ansible = true}
+    monitoring = {ip = "10.0.0.136", ansible = false}
   }
 
   source  = "terraform-aws-modules/ec2-instance/aws"
@@ -45,8 +49,12 @@ module "my_server_private" {
   ami                  = data.aws_ami.ubuntu.id
   instance_type        = "t3.micro"
   subnet_id            = module.devops_vpc.private_subnets[0]
-  private_ip           = each.value
+  private_ip           = each.value.ip
+  create_security_group  = false
+  vpc_security_group_ids = [module.devops_private_sg.id]
   iam_instance_profile = data.aws_iam_instance_profile.my_ssm_profile.name
-
-  user_data = templatefile("userdata-tunnel.sh", { tunnel_token = data.aws_ssm_parameter.token.value })
+  key_name            = "mimha-key"
+  user_data = templatefile("userdata-tunnel.sh", { 
+    tunnel_token = data.aws_ssm_parameter.token.value
+    install_ansible = each.value.ansible})
 }
