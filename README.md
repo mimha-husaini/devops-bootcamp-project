@@ -16,7 +16,7 @@
   [https://monitoring.husainibrahim.com]
 
 * **Documentation (GitHub Pages):**  
-  [https://mimha-husaini.github.io/devops-bootcamp-project/]
+  [https://devops-project.husainibrahim.com/]
 
 ### 🏗 Terraform Structure
 - providers.tf
