@@ -1,0 +1,25 @@
+# Web app (source repo still optional now)
+app_repo: "https://github.com/mimha-husaini/devops-bootcamp-project"
+app_dir: "/opt/devops-bootcamp-project"
+
+# ECR deploy (BONUS)
+aws_region: "ap-southeast-1"
+aws_account_id: "393450686639"
+ecr_repo: "devops-bootcamp/final-project-mhusaini"
+app_image: "{{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ ecr_repo }}:latest"
+
+app_container: "devops-bootcamp-project"
+
+# Monitoring
+monitoring_dir: "/opt/monitoring"
+web_node_exporter_target: "10.0.0.5:9100"
+
+# Grafana login
+grafana_admin_user: "admin"
+grafana_admin_password: "admin456"
+
+# Cloudflare Tunnel (Monitoring)
+cloudflared_hostname: "monitoring.husainibrahim.com"
+cloudflared_origin_url: "http://127.0.0.1:3000"
+
+# Cloudflare Tunnel (Token) declared in cloudflare_token.yaml but not send to git

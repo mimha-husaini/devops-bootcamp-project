@@ -1,0 +1,106 @@
+---
+- name: Web server - Docker + Node Exporter + App from ECR
+  hosts: web-server
+  become: true
+  vars_files:
+    - ../group_vars/allvars.yaml
+
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+
+    - name: Install base packages
+      apt:
+        name:
+          - docker-ce
+          - unzip
+        state: present
+
+    - name: Enable docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add ubuntu to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Install AWS CLI v2 (idempotent)
+      shell: |
+        set -eux
+        if command -v aws >/dev/null 2>&1; then
+          aws --version
+          exit 0
+        fi
+        curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
+        unzip -o /tmp/awscliv2.zip -d /tmp
+        /tmp/aws/install
+        aws --version
+      args:
+        executable: /bin/bash
+
+    - name: Run node exporter (port 9100)
+      shell: |
+        docker rm -f node-exporter >/dev/null 2>&1 || true
+        docker run -d --name node-exporter \
+          --restart unless-stopped \
+          -p 9100:9100 \
+          prom/node-exporter:latest
+      args:
+        executable: /bin/bash
+
+    - name: Login to ECR using EC2 IAM role
+      shell: |
+        set -eux
+        aws ecr get-login-password --region {{ aws_region }} \
+          | docker login --username AWS --password-stdin {{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com
+      args:
+        executable: /bin/bash
+
+    - name: Pull app image from ECR (latest)
+      shell: |
+        set -eux
+        docker pull {{ app_image }}
+      args:
+        executable: /bin/bash
+
+    - name: Find and stop container using port 80
+      shell: |
+        CONTAINER_ID=$(docker ps -q --filter "publish=80")
+        if [ ! -z "$CONTAINER_ID" ]; then
+          docker rm -f $CONTAINER_ID
+        fi
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Run app container on port 80 (restart with new image)
+      shell: |
+        set -eux
+        docker rm -f "{{ app_container }}" >/dev/null 2>&1 || true
+        docker run -d --name "{{ app_container }}" \
+          --restart unless-stopped \
+          -p 80:80 \
+          "{{ app_image }}"
+      args:
+        executable: /bin/bash
+
+    - name: Wait for app to be reachable on localhost
+      shell: |
+        set -eux
+        for i in $(seq 1 30); do
+          code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/ || true)"
+          if [ "$code" = "200" ] || [ "$code" = "301" ] || [ "$code" = "302" ]; then
+            echo "App is up: HTTP $code"
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "App did not become ready"
+        exit 1
+      args:
+        executable: /bin/bash

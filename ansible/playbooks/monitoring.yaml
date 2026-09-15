@@ -1,0 +1,67 @@
+---
+- name: Monitoring server - Docker + Prometheus + Grafana
+  hosts: monitoring
+  become: true
+  vars_files:
+    - ../group_vars/allvars.yaml
+    - ../group_vars/cloudflare_token.yaml
+
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+
+    - name: Install docker + docker compose v2
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - docker-compose-plugin
+          - unzip
+        state: present
+
+    - name: Enable docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Create monitoring folder
+      file:
+        path: "{{ monitoring_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Write Prometheus config
+      template:
+        src: ../templates/prometheus.yml.j2
+        dest: "{{ monitoring_dir }}/prometheus.yml"
+        mode: "0644"
+
+    - name: Write Docker Compose file
+      template:
+        src: ../templates/docker-compose.yml.j2
+        dest: "{{ monitoring_dir }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Start prometheus + grafana
+      command: docker compose up -d
+      args:
+        chdir: "{{ monitoring_dir }}"
+   
+    - name: Remove old cloudflared containers (clean slate)
+      shell: |
+        docker rm -f cloudflared >/dev/null 2>&1 || true
+      args:
+        executable: /bin/bash
+
+    - name: Run Cloudflare Tunnel (cloudflared) for Grafana
+      shell: |
+        docker run -d \
+          --name cloudflared \
+          --restart unless-stopped \
+          --network host \
+          cloudflare/cloudflared:latest \
+          tunnel --no-autoupdate run --token {{ cloudflared_tunnel_token }}
+      args:
+        executable: /bin/bash

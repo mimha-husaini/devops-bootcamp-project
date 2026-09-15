@@ -1,0 +1,3 @@
+---
+- import_playbook: web-server.yaml
+- import_playbook: monitoring.yaml
